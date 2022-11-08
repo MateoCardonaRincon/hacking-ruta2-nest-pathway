@@ -3,12 +3,15 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
   Put,
+  ValidationPipe,
 } from '@nestjs/common';
 import { InvoiceDto } from '../dtos/invoice.dto';
+import { PartialUpdateInvoiceDto } from '../dtos/partial-update-invoice.dto';
 import { UpdateInvoiceDto } from '../dtos/update-invoice.dto';
 import { InvoiceService } from '../services/invoice.service';
 
@@ -22,28 +25,51 @@ export class InvoiceController {
   }
 
   @Get(':uuid')
-  getInvoiceById(@Param('uuid') uuid: string): InvoiceDto {
+  getInvoiceById(@Param('uuid') uuid: string): InvoiceDto | NotFoundException {
     return this.invoiceService.getInvoiceById(uuid);
   }
 
   @Post()
-  saveInvoice(@Body() invoice: InvoiceDto): InvoiceDto {
+  saveInvoice(
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    )
+    invoice: InvoiceDto,
+  ): InvoiceDto {
     return this.invoiceService.saveInvoice(invoice);
   }
 
   @Put(':uuid')
   updateInvoice(
     @Param('uuid') uuid: string,
-    @Body() invoice: UpdateInvoiceDto,
-  ): UpdateInvoiceDto {
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    )
+    invoice: UpdateInvoiceDto,
+  ): UpdateInvoiceDto | NotFoundException {
     return this.invoiceService.updateInvoice(uuid, invoice);
   }
 
   @Patch(':uuid')
   updateInvoicePartially(
     @Param('uuid') uuid: string,
-    @Body() invoice: UpdateInvoiceDto,
-  ): UpdateInvoiceDto {
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    )
+    invoice: PartialUpdateInvoiceDto,
+  ): PartialUpdateInvoiceDto | NotFoundException {
     return this.invoiceService.updateInvoicePartially(uuid, invoice);
   }
 

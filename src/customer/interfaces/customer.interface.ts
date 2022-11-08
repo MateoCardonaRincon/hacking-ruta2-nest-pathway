@@ -1,7 +1,7 @@
 export interface CustomerInterface {
-  uuid: string;
+  uuid?: string;
   name: string;
-  lastname: string;
+  lastname?: string;
   phoneNumber: string;
   email: string;
 }

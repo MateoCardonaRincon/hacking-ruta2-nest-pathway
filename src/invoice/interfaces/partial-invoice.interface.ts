@@ -1,6 +1,6 @@
 import { InvoiceDetailInterface } from './invoice-detail.interface';
 
-export interface InvoiceInterface {
+export interface PartialInvoiceInterface {
   uuid?: string;
-  detail: InvoiceDetailInterface;
+  detail?: InvoiceDetailInterface;
 }
