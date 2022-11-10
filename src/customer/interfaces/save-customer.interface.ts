@@ -1,5 +1,4 @@
-export interface CustomerInterface {
-  uuid: string;
+export interface SaveCustomerInterface {
   name: string;
   lastname?: string;
   phoneNumber: string;
