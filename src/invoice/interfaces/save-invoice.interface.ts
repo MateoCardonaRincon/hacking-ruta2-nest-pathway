@@ -1,7 +1,6 @@
 import { InvoiceDetailInterface } from './invoice-detail.interface';
 
-export interface InvoiceInterface {
-  uuid: string;
+export interface SaveInvoiceInterface {
   storeBranch: string;
   detail: InvoiceDetailInterface;
 }

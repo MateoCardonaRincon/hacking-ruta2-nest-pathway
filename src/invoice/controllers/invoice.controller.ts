@@ -3,7 +3,7 @@ import {
   Controller,
   Delete,
   Get,
-  NotFoundException,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { InvoiceDto } from '../dtos/invoice.dto';
 import { PartialUpdateInvoiceDto } from '../dtos/partial-update-invoice.dto';
-import { UpdateInvoiceDto } from '../dtos/update-invoice.dto';
+import { SaveInvoiceDto } from '../dtos/save-invoice.dto';
 import { InvoiceService } from '../services/invoice.service';
 
 @Controller('invoice')
@@ -25,7 +25,7 @@ export class InvoiceController {
   }
 
   @Get(':uuid')
-  getInvoiceById(@Param('uuid') uuid: string): InvoiceDto | NotFoundException {
+  getInvoiceById(@Param('uuid') uuid: string): InvoiceDto {
     return this.invoiceService.getInvoiceById(uuid);
   }
 
@@ -36,9 +36,10 @@ export class InvoiceController {
         transform: true,
         whitelist: true,
         forbidNonWhitelisted: true,
+        errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE,
       }),
     )
-    invoice: InvoiceDto,
+    invoice: SaveInvoiceDto,
   ): InvoiceDto {
     return this.invoiceService.saveInvoice(invoice);
   }
@@ -51,10 +52,11 @@ export class InvoiceController {
         transform: true,
         whitelist: true,
         forbidNonWhitelisted: true,
+        errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE,
       }),
     )
-    invoice: UpdateInvoiceDto,
-  ): UpdateInvoiceDto | NotFoundException {
+    invoice: SaveInvoiceDto,
+  ): InvoiceDto {
     return this.invoiceService.updateInvoice(uuid, invoice);
   }
 
@@ -66,10 +68,11 @@ export class InvoiceController {
         transform: true,
         whitelist: true,
         forbidNonWhitelisted: true,
+        errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE,
       }),
     )
     invoice: PartialUpdateInvoiceDto,
-  ): PartialUpdateInvoiceDto | NotFoundException {
+  ): InvoiceDto {
     return this.invoiceService.updateInvoicePartially(uuid, invoice);
   }
 

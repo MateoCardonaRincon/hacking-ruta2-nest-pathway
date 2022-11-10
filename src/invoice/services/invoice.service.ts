@@ -1,78 +1,91 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InvoiceDto } from '../dtos/invoice.dto';
 import { PartialUpdateInvoiceDto } from '../dtos/partial-update-invoice.dto';
-import { UpdateInvoiceDto } from '../dtos/update-invoice.dto';
+import { SaveInvoiceDto } from '../dtos/save-invoice.dto';
+import { InvoiceInterface } from '../interfaces/invoice.interface';
 import { invoiceList } from '../utils/invoice-list';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class InvoiceService {
+  private invoices: InvoiceInterface[] = invoiceList;
+
   getAll(): InvoiceDto[] {
-    return invoiceList;
+    return this.invoices;
   }
 
-  getInvoiceById(uuid: string): InvoiceDto | NotFoundException {
-    const invoiceFound = invoiceList.find((invoice) => invoice.uuid === uuid);
+  getInvoiceById(uuid: string): InvoiceDto {
+    const invoiceFound = this.invoices.find((invoice) => invoice.uuid === uuid);
 
-    return (
-      invoiceFound ??
-      new NotFoundException(`Invoice with id ${uuid} does not exist.`)
-    );
+    if (invoiceFound) return invoiceFound;
+
+    throw new NotFoundException(`Invoice with id ${uuid} does not exist.`);
   }
 
-  saveInvoice(invoice: InvoiceDto): InvoiceDto {
-    return invoice;
+  saveInvoice(invoice: SaveInvoiceDto): InvoiceDto {
+    const newInvoice = { ...invoice, uuid: uuidv4() };
+    this.invoices.push(newInvoice);
+    return newInvoice;
   }
 
-  updateInvoice(
-    uuid: string,
-    invoice: UpdateInvoiceDto,
-  ): UpdateInvoiceDto | NotFoundException {
-    const updateThisInvoice = invoiceList.find(
+  updateInvoice(uuid: string, invoice: SaveInvoiceDto): InvoiceDto {
+    const updateThisInvoice = this.invoices.find(
       (invoice) => invoice.uuid === uuid,
     );
 
     if (updateThisInvoice) {
-      return {
+      const updatedInvoice: InvoiceDto = {
         uuid,
-        detail: {
-          price: invoice.detail?.price,
-          product: invoice.detail?.product,
-          seller: invoice.detail?.seller,
-        },
+        ...invoice,
+        detail: { ...invoice.detail },
       };
+
+      this.invoices = this.invoices.map((invoice) => {
+        if (invoice.uuid === updatedInvoice.uuid) return updatedInvoice;
+        return invoice;
+      });
+
+      return updatedInvoice;
     }
 
-    return new NotFoundException(`Invoice with id ${uuid} does not exist.`);
+    throw new NotFoundException(`Invoice with id ${uuid} does not exist.`);
   }
 
   updateInvoicePartially(
     uuid: string,
     invoice: PartialUpdateInvoiceDto,
-  ): PartialUpdateInvoiceDto | NotFoundException {
-    const updateThisInvoice = invoiceList.find(
+  ): InvoiceDto {
+    const updateThisInvoice = this.invoices.find(
       (invoice) => invoice.uuid === uuid,
     );
 
     if (updateThisInvoice) {
-      return {
+      const updatedInvoice: InvoiceDto = {
+        ...updateThisInvoice,
+        ...invoice,
         uuid,
-        detail: {
-          price: invoice.detail?.price ?? updateThisInvoice.detail.price,
-          product: invoice.detail?.product ?? updateThisInvoice.detail.product,
-          seller: invoice.detail?.seller ?? updateThisInvoice.detail.seller,
-        },
       };
+
+      this.invoices = this.invoices.map((invoice) => {
+        if (invoice.uuid === updatedInvoice.uuid) return updatedInvoice;
+        return invoice;
+      });
+
+      return updatedInvoice;
     }
 
-    return new NotFoundException(`Invoice with id ${uuid} does not exist.`);
+    throw new NotFoundException(`Invoice with id ${uuid} does not exist.`);
   }
 
   deleteInvoice(uuid: string): boolean {
-    const invoiceToDelete = invoiceList.find(
+    const invoiceToDelete = this.invoices.find(
       (invoice) => invoice.uuid === uuid,
     );
 
-    if (invoiceToDelete) return true;
+    if (invoiceToDelete) {
+      this.invoices = this.invoices.filter((invoice) => invoice.uuid !== uuid);
+      return true;
+    }
 
     return false;
   }

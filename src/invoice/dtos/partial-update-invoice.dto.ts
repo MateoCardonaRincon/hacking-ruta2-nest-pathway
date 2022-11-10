@@ -1,13 +1,27 @@
-import { IsObject, IsOptional, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { PartialInvoiceInterface } from '../interfaces/partial-invoice.interface';
 import { InvoiceDetailDto } from './invoice-detail.dto';
 
 export class PartialUpdateInvoiceDto implements PartialInvoiceInterface {
-  @IsUUID()
+  @IsString({
+    message: 'The field `storeBranch` must be of type string',
+  })
   @IsOptional()
-  uuid?: string;
+  readonly storeBranch?: string;
 
-  @IsObject()
+  @IsObject({
+    message:
+      'The field `detail` must be an object of type\n' +
+      '{price: number;\nproduct: string;\nseller?: string;}',
+  })
   @IsOptional()
-  detail?: InvoiceDetailDto;
+  @ValidateNested()
+  @Type(() => InvoiceDetailDto)
+  readonly detail?: InvoiceDetailDto;
 }

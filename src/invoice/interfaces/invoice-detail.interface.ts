@@ -1,5 +1,5 @@
 export interface InvoiceDetailInterface {
-  price?: number;
-  product?: string;
+  price: number;
+  product: string;
   seller?: string;
 }

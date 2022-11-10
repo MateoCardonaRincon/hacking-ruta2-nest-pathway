@@ -1,6 +1,6 @@
 import { InvoiceDetailInterface } from './invoice-detail.interface';
 
 export interface PartialInvoiceInterface {
-  uuid?: string;
+  storeBranch?: string;
   detail?: InvoiceDetailInterface;
 }
